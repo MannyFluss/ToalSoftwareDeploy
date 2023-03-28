@@ -215,13 +215,13 @@ def applySquareBorder(ws, topLeftCorner,bottomRightCorner,sideStyle = defaultSty
             cell.border = Border(right=_right,left=_left,bottom=_bottom,top=_top)
    
 
-def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Date", startingLine = "10000"):
+def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Date", startingLine = "10000", worksheetName = 'MONCTRL'):
     print("checkpoint1")
     csvPoints:list = readCSV(csvFilePath,startingLine)
     print("checkpoint2")
 
     wb = load_workbook(excelFilePath)
-    ws = wb['MONCTRL'] #this may pose problems if not all workbooks are monctrl
+    ws = wb[worksheetName] #this may pose problems if not all workbooks are monctrl
     column = ws['A']
     column_list = [cell.value for cell in column]
     
@@ -237,6 +237,16 @@ def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Dat
         if cell.value == "Overall":
             targetCell = ws.cell(row=cell.row,column=cell.column-1)
             break
+
+
+    currCell = ws.cell(row=3,column=targetCell.column-2)
+    tempCount = 0
+    while(True):
+        if (currCell.value==None):
+            break
+        tempCount += 1
+        currCell = ws.cell(row=currCell.row+1,column=currCell.column)
+    monitorPointCount = int(tempCount/3) - 1
     #setting up the values to be inserted
     entryDate = monitorDate
     FirstColumnValues = [None,None] 
@@ -370,10 +380,10 @@ def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Dat
 def main():
     # Your code here
     #readCSV(,"TR503.16")
-    #printCSVRowBlocks()
-    proccessExcelSheet("C:/Users/manny/Desktop/Git Folder/ToalSoftware/examples/21024.csv",
-                       excelFilePath="C:/Users/manny/Desktop/Git Folder/ToalSoftware/examples/21024 Monitor for Manny.xlsx",
-                        monitorDate="2",startingLine="TR503.16")
+    #printCSVRowBlocks() C:\Users\manny\Desktop\Git Folder\\examples\14814.csv
+    proccessExcelSheet("C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/14814.csv",
+                       excelFilePath="C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/14814  Monitor.xlsx",
+                        monitorDate="2",startingLine="MP1B.10",worksheetName="MONCTRL NEW")
     pass
 if __name__ == '__main__':
     main()
