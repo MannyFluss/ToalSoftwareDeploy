@@ -22,7 +22,7 @@ csvWorkingRowBlock : list = []
 currentWorkingNEELValues : dict = {}
 
 #return a list of the current working block
-def readCSV(filePathName,_startingLine): 
+def readCSV(filePathName,_startingLine,_endingLine): 
     with open(filePathName,'r') as file:
         currBlock : list = []
         currBlockCount : int = 0
@@ -63,9 +63,10 @@ def readCSV(filePathName,_startingLine):
             #print(row)
             if str(row[0]) == _startingLine:
                 readMonitorsFlag = True
-                print("hope you see this message")
             if readMonitorsFlag == False:
                 continue
+            if str(row[0]) == _endingLine:
+                break
             #these are the mps that we will actually use
             if pattern.match(row[0]) or pattern.match(row[4]):
                 rowCopy = row.copy()
@@ -215,9 +216,9 @@ def applySquareBorder(ws, topLeftCorner,bottomRightCorner,sideStyle = defaultSty
             cell.border = Border(right=_right,left=_left,bottom=_bottom,top=_top)
    
 
-def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Date", startingLine = "10000", worksheetName = 'MONCTRL'):
+def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Date", startingLine = "10000",endingLine="10000" ,worksheetName = 'MONCTRL'):
     print("checkpoint1")
-    csvPoints:list = readCSV(csvFilePath,startingLine)
+    csvPoints:list = readCSV(csvFilePath,startingLine,endingLine)
     print("checkpoint2")
 
     wb = load_workbook(excelFilePath)

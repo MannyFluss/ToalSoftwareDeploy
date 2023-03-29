@@ -11,9 +11,14 @@ def main():
         [sg.Input(key="excelFile"), sg.FileBrowse()],
         [sg.Text("Input starting line")],
         [sg.Input(key="input_num", size=(10,1))],
+        [sg.Text("Input ending Line")],
+        [sg.Input(key="input_num2", size=(10,1))],
         [sg.CalendarButton("Select Date", target="-IN-", key="_CALENDAR_", format="%Y/%m/%d")],
         [sg.Input(key="-IN-")],
+        [sg.Text("Input Target Sheet (usually MONCTRL)")],
+        [sg.Input(key="input_sheet", size=(10,1))],
         [sg.Button('Proccess File')],
+
         [sg.Text('Debug Console:')],
         [sg.Text(key="-DEBUGOUTPUT-")],
         ]
@@ -27,20 +32,20 @@ def main():
         if event == "_CALENDAR_":
             window["_IN_"].update(values["_CALENDAR_"])
         elif event == 'Proccess File':
-            returnStatus = proccessFile(values["csvFile"],values["excelFile"],values["input_num"],values["-IN-"])
+            returnStatus = proccessFile(values["csvFile"],values["excelFile"],values["input_num"],values["-IN-"],values["input_num2"],values["input_sheet"])
             window["-DEBUGOUTPUT-"].update(returnStatus)
 
     window.close()
 
-def proccessFile(csvFilePath,excelFilePath,startingLine,selectedDate)->str:
-    if (csvFilePath == None or excelFilePath == None or startingLine == None or selectedDate == None):
+def proccessFile(csvFilePath,excelFilePath,startingLine,selectedDate,EndingLine,SheetName)->str:
+    if (csvFilePath == None or excelFilePath == None or startingLine == None or selectedDate == None or EndingLine==None or SheetName==None):
         return "Error: input required in all fields"
     if (csvFilePath[-4:] != ".csv"):
         return "Error: Invalid input (.csv is not detected)"
     if (excelFilePath[-5:]!= ".xlsx"):
         return "Error: Invalid input (.xlsx is not detected)"
     try:
-        asset.proccessExcelSheet(csvFilePath,excelFilePath,selectedDate,startingLine)
+        asset.proccessExcelSheet(csvFilePath,excelFilePath,selectedDate,startingLine,EndingLine,SheetName)
     except:
         return "error occurred during excel sheet reading, check that file paths are correct"
 
