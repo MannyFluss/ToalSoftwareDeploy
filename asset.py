@@ -13,6 +13,10 @@ csv_pathname : str = "./examples/21024.csv"
 excelsheet_pathname : str = "./examples/21024 Monitor for MannyCopy.xlsx"
 excelsheet_result_pathname : str = "./examples/21024 Monitor for MannyCopyResult.xlsx"
 
+
+
+
+
 #the csv file format can be very different, plus it may only have partial informationm
 #of the current excel sheet.
 csvRowBlocks : list = []
@@ -28,36 +32,12 @@ def readCSV(filePathName,_startingLine,_endingLine):
         currBlockCount : int = 0
         pattern = re.compile(r'^MP\d*\.?\d*')
         reader = csv.reader(file) 
-        # for row in reader:
-        #     print(row)
-        #     #empty row
-        #     if row == []:
-        #         continue
-        #     #check if mp
-        #     if pattern.match(row[0]) or pattern.match(row[4]):
-        #         rowCopy = row.copy()
-        #         currBlock.append(rowCopy)
-        #         currBlockCount += 1
-        #     else:
-        #         #this means this is the end of a current scan
-        #         if (currBlockCount > 0):
-        #             blockCopy = copy.deepcopy(currBlock)
-        #             csvRowBlocks.append(blockCopy)
-        #             #clear the working blocks
-        #             currBlockCount = 0
-        #             currBlock.clear()
-        # blockCopy = copy.deepcopy(currBlock)
-        # csvRowBlocks.append(blockCopy)
-        # #print(csvRowBlocks[len(csvRowBlocks)-1])
-        # csvWorkingRowBlock = copy.deepcopy(csvRowBlocks[len(csvRowBlocks)-1])
-        # #print(csvWorkingRowBlock)
-        #now i will just do the same thing but only MP's after a certain number
+        
         readMonitorsFlag = False
         currBlock.clear()
         currBlockCount = 0
         #print(_startingLine)
         for row in reader:
-            
             if row == []:
                 continue
             #print(row)
