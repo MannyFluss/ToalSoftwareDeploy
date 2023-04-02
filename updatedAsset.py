@@ -56,7 +56,7 @@ class CellTriplet:
         return to_return
     @staticmethod
     def duplicate(_target : "CellTriplet")->"CellTriplet":
-        print(_target)
+        
         to_return = CellTriplet(_target.North,_target.East,_target.Elevation)
         return to_return
 
@@ -83,7 +83,7 @@ class CellColumn:
         if neel ==0:
             return self.CellList[cellIndex].North
         if neel == 1:
-            print(self.CellList[cellIndex].East)
+            
             return self.CellList[cellIndex].East
         if neel == 2:
             return self.CellList[cellIndex].Elevation 
@@ -109,6 +109,9 @@ class CellColumn:
                 return currCell.Elevation
             return None
 #these should be constant variables, advanced options that should not ever need to be changed, but may need to be in a special case
+theDate = "0/0/0"
+default_cell_count = 13
+default_print_bottom = 57
 determinantTargetRow = 1
 determinantTargetWord = "Overall"
 startingRow = 3
@@ -232,7 +235,6 @@ def orderCSVValues():
                current_i = i
 
         if currentSmallestDelta > smallestDeltaAllowed:
-            print(currentSmallestDelta)
             print("delta exceeds smallest allowed amount")
             cellCount += 1
             orderedList.append(CellTriplet(currentSmallestCSVValue.North,currentSmallestCSVValue.East,currentSmallestCSVValue.Elevation))
@@ -258,7 +260,7 @@ def insertRowsAndWrite(filePath:str,worksheetName:str="MONCTRL"):
         if value == None or value == "":
             to_insert = "NA"
         else:
-            to_insert = str(value)
+            to_insert = float(value)
         newValueTarget.value = to_insert
         leftOfValue = ws.cell(row=newValueTarget.row,column=newValueTarget.column-1)
         if i%3==0:
@@ -294,19 +296,117 @@ def updateOverallDeltaValues(filePath:str,worksheetName:str="MONCTRL"):
             valueToInsertFeet = "NA"
             valueToInsertInches = "NA"
         else:
-            
-            print(str(firstValue) +" "+ str(i))
-            valueToInsertFeet = str(float(recentValue) - float(firstValue))
-            valueToInsertInches = str((float(recentValue) - float(firstValue))*12)
+            valueToInsertFeet = float(round(float(recentValue) - float(firstValue),3))
+            valueToInsertInches = float(round((float(recentValue) - float(firstValue))*12,2))
         currCellFeet.value = valueToInsertFeet
         currCellInches.value = valueToInsertInches
         currCellFeet = ws.cell(row=currCellFeet.row+1,column=currCellFeet.column)
         currCellInches = ws.cell(row=currCellInches.row+1,column=currCellInches.column)
 
-    
+    #for now just apply style here too
+    applyStyle(ws)
+
     wb.save(filePath[:-5] +"results.xlsx")
     pass
+# apply the right amount of nums to each value
+# apply the square borders to each of the things
+# apply alignment to the text
+date_row = 1
+location_delta_row = 2
+def applyStyle(_ws):
+    ws = _ws
+    #apply proper width
+    column_list = [(ws.cell(row=startingRow,column=targetColumn+i).column_letter) for i in range(0,9)]
+    ws.column_dimensions[column_list[0]].width = 2.43
+    ws.column_dimensions[column_list[1]].width = 11
+    ws.column_dimensions[column_list[2]].width = 6
+    ws.column_dimensions[column_list[3]].width = 1.86
+
+    ws.column_dimensions[column_list[4]].width = 2.57
+    ws.column_dimensions[column_list[5]].width = 9.29
+    ws.column_dimensions[column_list[6]].width = 1.86
+    ws.column_dimensions[column_list[7]].width = 2.57
+    ws.column_dimensions[column_list[8]].width = 9.29
+    #cell mergings
+    merge1 = column_list[7]+str(date_row)
+    merge2 = column_list[8]+str(date_row)
+    ws.merge_cells(merge1+":"+merge2)
+    merge1 = column_list[7]+str(location_delta_row)
+    merge2 = column_list[8]+str(location_delta_row)
+    ws.merge_cells(merge1+":"+merge2)
+
+    #
+    mergedCell1 = ws.cell(row=startingRow,column=targetColumn+1).column_letter + str(2)
+    mergedCell2 = ws.cell(row=startingRow,column=targetColumn+2).column_letter + str(2)
+    ws.merge_cells(mergedCell1+":"+mergedCell2)
+    ws.unmerge_cells(mergedCell1+":"+mergedCell2)
+    #fill in misc vals
+    dateCell = ws.cell(row=date_row,column=targetColumn+1)
+    dateCell.value = theDate
+    
+    locationCell = ws.cell(row=location_delta_row,column=targetColumn+1)
+    deltaCell = ws.cell(row=location_delta_row,column=targetColumn+2)
+
+    locationCell.value = "Location"
+    deltaCell.value = "Delta"
+
+    cell_align = Alignment(horizontal='center')
+    dateCell.alignment = cell_align
+    locationCell.alignment = cell_align
+    deltaCell.alignment = cell_align
+    #apply number format, and right allignment
+    cell_align = Alignment(horizontal='right')
+    topLeftWorkingCell = ws.cell(row=startingRow,column=targetColumn)
+    bottomRightWorkingCell = ws.cell(row=startingRow+2+(cellCount*3),column=targetColumn+5)
+    for rows in ws[topLeftWorkingCell.coordinate+":"+bottomRightWorkingCell.coordinate]:
+        for cell in rows:
+            cell.number_format = "0.000"
+            cell.alignment = cell_align
+    #apply the borders
+    #update the gui
+    topLeftCell = ws.cell(row=date_row,column=targetColumn)
+    bottomRightCell = ws.cell(row=location_delta_row,column=targetColumn+2)
+    applySquareBorder(ws,topLeftCell,bottomRightCell)
+    for i in range(0,max(cellCount,default_cell_count)):
         
+        topLeftCell = ws.cell(row=startingRow+(i*3),column=targetColumn)
+        bottomRightCell = ws.cell(row=startingRow+(i*3)+2,column=targetColumn+2)
+        applySquareBorder(ws,topLeftCell,bottomRightCell)
+        topLeftCell = ws.cell(row=startingRow+(i*3),column=targetColumn+2)
+        bottomRightCell = ws.cell(row=startingRow+2+(i*3),column=targetColumn+2)
+        applySquareBorder(ws,topLeftCell,bottomRightCell)
+        
+        
+    
+    topLeftCell = ws.cell(row=1,column=1)
+    bottomRightCell = ws.cell(row=default_print_bottom,column=targetColumn+8)
+    ws.print_area = topLeftCell.coordinate+":"+bottomRightCell.coordinate
+
+defaultStyle=Side(border_style='medium',color='000000')
+
+def applySquareBorder(ws, topLeftCorner,bottomRightCorner,sideStyle = defaultStyle):
+    #construct border styles
+    cell_range = ws[str(topLeftCorner.coordinate)+":"+str(bottomRightCorner.coordinate)]
+    mostLeft = topLeftCorner.column
+    mostTop = topLeftCorner.row
+    mostBottom = bottomRightCorner.row
+    mostRight = bottomRightCorner.column
+    for row in cell_range:
+        for cell in row:
+            #check if its on each border
+            _top,_left,_right,_bottom = None,None,None,None
+            if cell.row == mostBottom:
+                _bottom = sideStyle
+            if cell.column == mostLeft:
+                _left = sideStyle
+            if cell.column == mostRight:
+                _right = sideStyle
+            if cell.row == mostTop:
+                _top = sideStyle
+            cell.border = Border(right=_right,left=_left,bottom=_bottom,top=_top)
+   
+
+
 def main():
     
     testCase = "C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/21024 Monitor for MannyCopy.xlsx"
@@ -327,8 +427,8 @@ def main():
     # # print()
     # for i ,element in enumerate(csvOrderedValues):
     #      print(" "+ str(excelFirstWorkingColumn.getIndex(i)))
-    for element in excelFirstWorkingColumn:
-        print(element)
+    # for element in excelFirstWorkingColumn:
+    #     print(element)
 
 
 
