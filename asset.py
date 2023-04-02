@@ -302,7 +302,7 @@ def proccessExcelSheet(csvFilePath:str,excelFilePath:str, monitorDate = "The Dat
         deltaFeetCurr.value = newDeltasFeet[i]
         deltaInchesCurr.value = newDeltasinches[i]
 
-
+    
     #we need to format the values
     column_list = [(ws.cell(row=targetCell.row+3,column=targetCell.column+i).column_letter) for i in range(0,9)]
 
