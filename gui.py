@@ -50,8 +50,6 @@ def proccessFile(csvFilePath,excelFilePath,startingLine,selectedDate,EndingLine,
         updatedAsset.proccessSheet()
     except:
         return "error occurred during excel sheet proccessing"
-
-    
     return "Job Done (No Errors)"
 
 if __name__ == '__main__':
