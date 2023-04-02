@@ -1,4 +1,4 @@
-import asset
+import updatedAsset
 
 import PySimpleGUI as sg
 
@@ -45,9 +45,11 @@ def proccessFile(csvFilePath,excelFilePath,startingLine,selectedDate,EndingLine,
     if (excelFilePath[-5:]!= ".xlsx"):
         return "Error: Invalid input (.xlsx is not detected)"
     try:
-        asset.proccessExcelSheet(csvFilePath,excelFilePath,selectedDate,startingLine,EndingLine,SheetName)
+        updatedAsset.applyRequiredSettings(csvFilePath,excelFilePath,selectedDate,startingLine)
+        updatedAsset.applyOptionalSettings(EndingLine,SheetName)
+        updatedAsset.proccessSheet()
     except:
-        return "error occurred during excel sheet reading, check that file paths are correct"
+        return "error occurred during excel sheet proccessing"
 
     
     return "Job Done (No Errors)"

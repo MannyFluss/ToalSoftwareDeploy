@@ -110,6 +110,11 @@ class CellColumn:
             return None
 #these should be constant variables, advanced options that should not ever need to be changed, but may need to be in a special case
 theDate = "0/0/0"
+
+
+
+
+#add options for this in future if its necessary
 default_cell_count = 13
 default_print_bottom = 57
 determinantTargetRow = 1
@@ -190,13 +195,12 @@ def getFirstWorkingValeus(_ws):
                 break
             currentTargetColumn += 1
 
-def readExcelSheet(filePath:str,worksheetName:str="MONCTRL"):
+def readExcelSheet(_ws):
     #find the target column
     global cellCount
     global targetColumn
 
-    wb = load_workbook(filePath, data_only=True)
-    ws = wb[worksheetName]
+    ws = _ws
     for cell in ws[determinantTargetRow]:
         if cell.value == determinantTargetWord:
             targetColumn = cell.column - 1
@@ -249,9 +253,9 @@ def orderCSVValues():
 
     pass
 
-def insertRowsAndWrite(filePath:str,worksheetName:str="MONCTRL"):
-    wb = load_workbook(filePath)
-    ws = wb[worksheetName]
+def insertRowsAndWrite(_ws):
+    
+    ws = _ws
     ws.insert_cols(targetColumn,3)
 
     newValueTarget = ws.cell(startingRow,targetColumn+1)
@@ -277,12 +281,10 @@ def insertRowsAndWrite(filePath:str,worksheetName:str="MONCTRL"):
         
         newValueTarget = ws.cell(row=newValueTarget.row+1,column=newValueTarget.column)
         
-
-    wb.save(filePath[:-5] +"results.xlsx")
     
-def updateOverallDeltaValues(filePath:str,worksheetName:str="MONCTRL"):
-    wb = load_workbook(filePath)
-    ws = wb[worksheetName]
+def updateOverallDeltaValues(_ws):
+    
+    ws = _ws
     #there is a possiblity this is larger than the working values of before(new point added)
     getMostRecentWorkingValues(ws)
     getFirstWorkingValeus(ws)
@@ -304,10 +306,6 @@ def updateOverallDeltaValues(filePath:str,worksheetName:str="MONCTRL"):
         currCellInches = ws.cell(row=currCellInches.row+1,column=currCellInches.column)
 
     #for now just apply style here too
-    applyStyle(ws)
-
-    wb.save(filePath[:-5] +"results.xlsx")
-    pass
 # apply the right amount of nums to each value
 # apply the square borders to each of the things
 # apply alignment to the text
@@ -404,8 +402,40 @@ def applySquareBorder(ws, topLeftCorner,bottomRightCorner,sideStyle = defaultSty
             if cell.row == mostTop:
                 _top = sideStyle
             cell.border = Border(right=_right,left=_left,bottom=_bottom,top=_top)
-   
 
+csvFilePath = ""
+excelFilePath = ""
+startingLineCSV = "" 
+def applyRequiredSettings(_csvFilePath:str,_excelFilePath:str,_selectedDate:str,_startingLine:str):
+    global csvFilePath
+    global excelFilePath
+    global startingLineCSV
+    global theDate
+    csvFilePath = _csvFilePath
+    excelFilePath = _excelFilePath
+    startingLineCSV = _startingLine
+    theDate = _selectedDate
+
+endingLineCSV = ""
+WBsheetName = ""
+
+def applyOptionalSettings(_endingLine="",_sheetName="MONCTRL"):
+    global endingLineCSV
+    global WBsheetName
+    endingLineCSV = _endingLine
+    WBsheetName = _sheetName
+    
+def proccessSheet():
+
+    readCSV(csvFilePath,startingLineCSV,endingLineCSV)
+    wb = load_workbook(excelFilePath,data_only=True)
+    ws = wb[WBsheetName]
+    readExcelSheet(ws)
+    orderCSVValues()
+    insertRowsAndWrite(ws)
+    updateOverallDeltaValues(ws)
+    applyStyle(ws)
+    wb.save(excelFilePath[:-5]+"results.xlsx")    
 
 def main():
     
@@ -414,22 +444,19 @@ def main():
     testCase2 = "C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/21024 Monitor for MannyCopyresult.xlsx"
 
     test2 = "C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/14814  Monitor.xlsx"
-    test1 = "C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/14814.csv"
-
-    
+    test1 = "C:/Users/manny/Desktop/Git Folder/ToalSoftwareDeploy/ToalSoftwareDeploy/examples/14814.csv"    
     readCSV(testCase1,"TR503.16","")
-    
-    readExcelSheet(testCase, "MONCTRL")
+
+    wb = load_workbook(testCase,data_only=True)
+    ws = wb["MONCTRL"]
+
+    readExcelSheet(ws)
     orderCSVValues()
-    insertRowsAndWrite(testCase,"MONCTRL")
-    updateOverallDeltaValues(testCase[:-5] +"results.xlsx","MONCTRL")
+    insertRowsAndWrite(ws)
+    updateOverallDeltaValues(ws)
+    applyStyle(ws)
 
-    # # print()
-    # for i ,element in enumerate(csvOrderedValues):
-    #      print(" "+ str(excelFirstWorkingColumn.getIndex(i)))
-    # for element in excelFirstWorkingColumn:
-    #     print(element)
-
+    wb.save(testCase[:-5] +"results.xlsx")
 
 
     # for element in excelMostRecentWorkingColumn:
